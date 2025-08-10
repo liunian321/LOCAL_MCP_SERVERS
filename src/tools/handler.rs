@@ -1,5 +1,5 @@
 use crate::tools::{
-    system_tool::handle_get_system_type, time_tool::handle_get_current_time, tool_dto::*,
+    public::{network::ping_tool::handle_ping_tool, system_tool::handle_get_system_type, time_tool::handle_get_current_time}, tool_dto::*,
 };
 
 /// 内部工具列表处理函数
@@ -10,7 +10,7 @@ pub async fn handle_tools_list_internal(
         Tool {
             name: "get_system_type".to_string(),
             title: Some("系统类型信息".to_string()),
-            description: "获取当前运行系统的类型信息，包括操作系统、架构".to_string(),
+            description: "获取当前运行系统的类型信息,包括操作系统、架构".to_string(),
             input_schema: ToolInputSchema {
                 schema_type: "object".to_string(),
                 properties: Some(serde_json::json!({})),
@@ -26,6 +26,23 @@ pub async fn handle_tools_list_internal(
             input_schema: ToolInputSchema {
                 schema_type: "object".to_string(),
                 properties: Some(serde_json::json!({})),
+                required: None,
+            },
+            output_schema: None,
+            annotations: None,
+        },
+        Tool {
+            name: "ping".to_string(),
+            title: Some("Ping".to_string()),
+            description: "Ping 工具,测试网络连通性".to_string(),
+            input_schema: ToolInputSchema {
+                schema_type: "object".to_string(),
+                properties: Some(serde_json::json!({
+                    "target": {
+                        "type": "string",
+                        "description": "要ping的地址,支持URL,IP:端口,IP地址,域名"
+                    }
+                })),
                 required: None,
             },
             output_schema: None,
@@ -57,6 +74,7 @@ pub async fn handle_tool_call_internal(
     let result = match params.name.as_str() {
         "get_system_type" => handle_get_system_type(params.arguments),
         "get_current_time" => handle_get_current_time(params.arguments),
+        "ping" => handle_ping_tool(params.arguments),
         _ => {
             return Err(JsonRpcError {
                 jsonrpc: "2.0".to_string(),

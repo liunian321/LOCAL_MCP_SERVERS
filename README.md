@@ -23,7 +23,7 @@ listen_port: 8080
 cargo run
 ```
 
-## mcp.js 示例
+## mcp.json 示例
 
 ```json
 {

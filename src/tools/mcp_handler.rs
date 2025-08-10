@@ -108,7 +108,7 @@ async fn handle_mcp_request_internal(
                     .as_ref()
                     .and_then(|p| serde_json::from_value(p.clone()).ok()),
             };
-            
+
             match crate::tools::handler::handle_tool_call_internal(tool_call_request).await {
                 Ok(response) => axum::Json(serde_json::to_value(&response).unwrap_or_default()),
                 Err(error) => {

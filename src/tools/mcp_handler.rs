@@ -97,6 +97,34 @@ async fn handle_mcp_request_internal(
             let response = crate::tools::handler::handle_tools_list_internal(tools_request).await;
             axum::Json(serde_json::to_value(&response).unwrap_or_default())
         }
+        "tools/call" => {
+            // 处理工具调用请求
+            let tool_call_request = crate::tools::tool_dto::JsonRpcRequest {
+                jsonrpc: request.jsonrpc.clone(),
+                id: request_id.clone(),
+                method: request.method.clone(),
+                params: request
+                    .params
+                    .as_ref()
+                    .and_then(|p| serde_json::from_value(p.clone()).ok()),
+            };
+            
+            match crate::tools::handler::handle_tool_call_internal(tool_call_request).await {
+                Ok(response) => axum::Json(serde_json::to_value(&response).unwrap_or_default()),
+                Err(error) => {
+                    let error_response = crate::tools::tool_dto::JsonRpcError {
+                        jsonrpc: "2.0".to_string(),
+                        id: request_id,
+                        error: crate::tools::tool_dto::ErrorDetail {
+                            code: -32603,
+                            message: "Internal error during tool call".to_string(),
+                            data: Some(serde_json::to_value(&error).unwrap_or_default()),
+                        },
+                    };
+                    axum::Json(serde_json::to_value(&error_response).unwrap_or_default())
+                }
+            }
+        }
         _ => {
             let error_response = crate::tools::tool_dto::JsonRpcError {
                 jsonrpc: "2.0".to_string(),

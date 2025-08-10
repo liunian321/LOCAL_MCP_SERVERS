@@ -9,7 +9,6 @@ pub struct SystemInfo {
     pub arch: String,
 }
 
-/// 获取当前系统类型信息
 fn get_system_type() -> SystemInfo {
     SystemInfo {
         os: env::consts::OS.to_string(),
@@ -17,7 +16,9 @@ fn get_system_type() -> SystemInfo {
     }
 }
 
-/// 处理获取系统类型的工具调用
+/**
+ * 获取系统类型
+ */
 pub fn handle_get_system_type(_args: Option<serde_json::Value>) -> ToolCallResult {
     let system_info = get_system_type();
     let result_text = serde_json::to_string_pretty(&system_info)

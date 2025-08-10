@@ -1,5 +1,5 @@
 use crate::tools::tool_dto::{ToolCallResult, ToolContent};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::net::TcpStream;
 use std::time::{Duration, Instant};
 use url::Url;
@@ -7,6 +7,36 @@ use url::Url;
 #[derive(Debug, Deserialize)]
 struct PingArgs {
     target: String,
+}
+
+/// Ping 工具的结果结构体
+#[derive(Debug, Serialize)]
+struct PingResult {
+    target: String,
+    latency_ms: u128,
+    status: PingStatus,
+    connected: bool,
+    timeout: bool,
+}
+
+/// Ping 状态枚举
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum PingStatus {
+    Success,
+    ConnectionFailed,
+    Timeout,
+    InvalidFormat,
+    MissingArguments,
+}
+
+/// 错误结果结构体
+#[derive(Debug, Serialize)]
+struct ErrorResult {
+    error: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    target: Option<String>,
+    status: PingStatus,
 }
 
 /// 解析目标地址，区分网址和 IP:端口
@@ -57,7 +87,12 @@ fn ping_tool(target: &str) -> ToolCallResult {
     let parsed_target = match parse_target(target) {
         Ok(addr) => addr,
         Err(err_msg) => {
-            let error_msg = err_msg.clone();
+            let error_result = ErrorResult {
+                error: err_msg.clone(),
+                target: Some(target.to_string()),
+                status: PingStatus::InvalidFormat,
+            };
+
             return ToolCallResult {
                 content: vec![ToolContent {
                     content_type: "text".to_string(),
@@ -67,11 +102,7 @@ fn ping_tool(target: &str) -> ToolCallResult {
                     annotations: None,
                 }],
                 is_error: Some(true),
-                structured_content: Some(serde_json::json!({
-                    "error": error_msg,
-                    "target": target,
-                    "status": "invalid_format"
-                })),
+                structured_content: Some(serde_json::to_value(error_result).unwrap()),
             };
         }
     };
@@ -104,13 +135,13 @@ fn ping_tool(target: &str) -> ToolCallResult {
             // 连接成功
             let result_text = format!("连接成功 - 目标: {} 延迟: {:?}", parsed_target, duration);
 
-            let structured_result = serde_json::json!({
-                "target": parsed_target,
-                "latency_ms": duration.as_millis(),
-                "status": "success",
-                "connected": true,
-                "timeout": false
-            });
+            let ping_result = PingResult {
+                target: parsed_target.clone(),
+                latency_ms: duration.as_millis(),
+                status: PingStatus::Success,
+                connected: true,
+                timeout: false,
+            };
 
             ToolCallResult {
                 content: vec![ToolContent {
@@ -121,7 +152,7 @@ fn ping_tool(target: &str) -> ToolCallResult {
                     annotations: None,
                 }],
                 is_error: Some(false),
-                structured_content: Some(structured_result),
+                structured_content: Some(serde_json::to_value(ping_result).unwrap()),
             }
         }
         Ok(Err(_)) => {
@@ -131,13 +162,13 @@ fn ping_tool(target: &str) -> ToolCallResult {
                 parsed_target, duration
             );
 
-            let structured_result = serde_json::json!({
-                "target": parsed_target,
-                "latency_ms": duration.as_millis(),
-                "status": "connection_failed",
-                "connected": false,
-                "timeout": false
-            });
+            let ping_result = PingResult {
+                target: parsed_target.clone(),
+                latency_ms: duration.as_millis(),
+                status: PingStatus::ConnectionFailed,
+                connected: false,
+                timeout: false,
+            };
 
             ToolCallResult {
                 content: vec![ToolContent {
@@ -148,20 +179,20 @@ fn ping_tool(target: &str) -> ToolCallResult {
                     annotations: None,
                 }],
                 is_error: Some(true),
-                structured_content: Some(structured_result),
+                structured_content: Some(serde_json::to_value(ping_result).unwrap()),
             }
         }
         Err(_) => {
             // 超时或其他错误
             let result_text = format!("连接超时 - 目标: {} 超时时间: {:?}", parsed_target, timeout);
 
-            let structured_result = serde_json::json!({
-                "target": parsed_target,
-                "latency_ms": timeout.as_millis(),
-                "status": "timeout",
-                "connected": false,
-                "timeout": true
-            });
+            let ping_result = PingResult {
+                target: parsed_target.clone(),
+                latency_ms: timeout.as_millis(),
+                status: PingStatus::Timeout,
+                connected: false,
+                timeout: true,
+            };
 
             ToolCallResult {
                 content: vec![ToolContent {
@@ -172,7 +203,7 @@ fn ping_tool(target: &str) -> ToolCallResult {
                     annotations: None,
                 }],
                 is_error: Some(true),
-                structured_content: Some(structured_result),
+                structured_content: Some(serde_json::to_value(ping_result).unwrap()),
             }
         }
     }
@@ -185,6 +216,12 @@ pub fn handle_ping_tool(_args: Option<serde_json::Value>) -> ToolCallResult {
         Some(args) => match serde_json::from_value(args) {
             Ok(parsed_args) => parsed_args,
             Err(_) => {
+                let error_result = ErrorResult {
+                    error: "参数格式错误，需要包含 target 字段".to_string(),
+                    target: None,
+                    status: PingStatus::InvalidFormat,
+                };
+
                 return ToolCallResult {
                     content: vec![ToolContent {
                         content_type: "text".to_string(),
@@ -194,14 +231,17 @@ pub fn handle_ping_tool(_args: Option<serde_json::Value>) -> ToolCallResult {
                         annotations: None,
                     }],
                     is_error: Some(true),
-                    structured_content: Some(serde_json::json!({
-                        "error": "参数格式错误",
-                        "status": "invalid_format"
-                    })),
+                    structured_content: Some(serde_json::to_value(error_result).unwrap()),
                 };
             }
         },
         None => {
+            let error_result = ErrorResult {
+                error: "缺少参数".to_string(),
+                target: None,
+                status: PingStatus::MissingArguments,
+            };
+
             return ToolCallResult {
                 content: vec![ToolContent {
                     content_type: "text".to_string(),
@@ -211,10 +251,7 @@ pub fn handle_ping_tool(_args: Option<serde_json::Value>) -> ToolCallResult {
                     annotations: None,
                 }],
                 is_error: Some(true),
-                structured_content: Some(serde_json::json!({
-                    "error": "缺少参数",
-                    "status": "missing_arguments"
-                })),
+                structured_content: Some(serde_json::to_value(error_result).unwrap()),
             };
         }
     };

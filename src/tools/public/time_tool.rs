@@ -6,7 +6,9 @@ fn get_current_time() -> String {
     let now = Local::now();
     now.format("%Y-%m-%d %H:%M:%S").to_string()
 }
-
+/**
+ * 获取当前时间
+ */
 pub fn handle_get_current_time(_args: Option<serde_json::Value>) -> ToolCallResult {
     let result_text = get_current_time();
     ToolCallResult {

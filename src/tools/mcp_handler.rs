@@ -19,7 +19,6 @@ pub async fn handle_generic_mcp_request(body: Bytes) -> axum::Json<serde_json::V
         }
     };
 
-    // 尝试提取基本字段
     let method = json_value
         .get("method")
         .and_then(|m| m.as_str())
@@ -28,7 +27,6 @@ pub async fn handle_generic_mcp_request(body: Bytes) -> axum::Json<serde_json::V
     let id = json_value.get("id").cloned();
     let params = json_value.get("params").cloned();
 
-    // 构造灵活的请求结构
     let request = crate::tools::tool_dto::FlexibleJsonRpcRequest {
         jsonrpc: json_value
             .get("jsonrpc")
@@ -54,11 +52,11 @@ pub async fn handle_generic_mcp_request(body: Bytes) -> axum::Json<serde_json::V
 async fn handle_mcp_request_internal(
     request: crate::tools::tool_dto::FlexibleJsonRpcRequest<serde_json::Value>,
 ) -> axum::Json<serde_json::Value> {
-    // 如果没有ID，这是一个通知，不需要响应
+    // 如果没有ID，说明这是一个通知，不需要响应
     let request_id = match &request.id {
         Some(id) => id.clone(),
         None => {
-            // 对于通知，我们可以选择不响应或返回空响应
+            // 可以不响应或返回空响应
             return axum::Json(serde_json::json!({}));
         }
     };

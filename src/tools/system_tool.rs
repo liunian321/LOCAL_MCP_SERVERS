@@ -7,7 +7,6 @@ use crate::tools::tool_dto::{ToolCallResult, ToolContent};
 pub struct SystemInfo {
     pub os: String,
     pub arch: String,
-    pub family: String,
 }
 
 /// 获取当前系统类型信息
@@ -15,7 +14,6 @@ fn get_system_type() -> SystemInfo {
     SystemInfo {
         os: env::consts::OS.to_string(),
         arch: env::consts::ARCH.to_string(),
-        family: env::consts::FAMILY.to_string(),
     }
 }
 

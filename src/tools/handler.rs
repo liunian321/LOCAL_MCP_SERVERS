@@ -10,7 +10,7 @@ pub async fn handle_tools_list_internal(
         Tool {
             name: "get_system_type".to_string(),
             title: Some("系统类型信息".to_string()),
-            description: "获取当前运行系统的类型信息，包括操作系统、架构和系统家族".to_string(),
+            description: "获取当前运行系统的类型信息，包括操作系统、架构".to_string(),
             input_schema: ToolInputSchema {
                 schema_type: "object".to_string(),
                 properties: Some(serde_json::json!({})),

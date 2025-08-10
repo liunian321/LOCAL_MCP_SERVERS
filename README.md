@@ -91,7 +91,7 @@ data: ping
       {
         "name": "get_system_type",
         "title": "系统类型信息",
-        "description": "获取当前运行系统的类型信息，包括操作系统、架构和系统家族",
+        "description": "获取当前运行系统的类型信息，包括操作系统、架构",
         "inputSchema": {
           "type": "object",
           "properties": {}
@@ -141,14 +141,13 @@ data: ping
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"os\": \"macos\",\n  \"arch\": \"aarch64\",\n  \"family\": \"unix\"\n}"
+        "text": "{\n  \"os\": \"macos\",\n  \"arch\": \"aarch64\"\n}"
       }
     ],
     "isError": false,
     "structuredContent": {
       "os": "macos",
       "arch": "aarch64",
-      "family": "unix"
     }
   }
 }
@@ -162,7 +161,6 @@ data: ping
 
 - **os**: 操作系统类型 (如 "macos", "linux", "windows")
 - **arch**: 系统架构 (如 "aarch64", "x86_64")
-- **family**: 系统家族 (如 "unix", "windows")
 
 此工具不需要任何输入参数。
 

@@ -1,7 +1,7 @@
 use crate::tools::{
     public::{
         file::{list_files_tool::handle_list_files_tool, read_file_tool::handle_read_file_tool},
-        network::ping_tool::handle_ping_tool,
+        network::{ping_tool::handle_ping_tool, read_ip_tool::handle_read_ip_tool},
         system_tool::handle_get_system_type,
         time_tool::handle_get_current_time,
     },
@@ -50,6 +50,22 @@ pub async fn handle_tools_list_internal(
                     }
                 })),
                 required: Some(vec!["target".to_string()]),
+            },
+            output_schema: None,
+            annotations: None,
+        },
+        Tool {
+            name: "read ip".to_string(),
+            title: Some("查询IP".to_string()),
+            description: "查询域名解析IP及延迟；不传参数时返回本机公网IP".to_string(),
+            input_schema: ToolInputSchema {
+                schema_type: "object".to_string(),
+                properties: Some(serde_json::json!({
+                    "domain": {"type": "string", "description": "要解析的域名，可选"},
+                    "dns": {"type": "string", "description": "自定义DNS服务器，支持 ip 或 ip:port，可选"},
+                    "port": {"type": "number", "description": "用于测延迟的端口，默认80，可选"}
+                })),
+                required: None,
             },
             output_schema: None,
             annotations: None,
@@ -115,6 +131,7 @@ pub async fn handle_tool_call_internal(
         "get_system_type" => handle_get_system_type(params.arguments),
         "get_current_time" => handle_get_current_time(params.arguments),
         "ping" => handle_ping_tool(params.arguments),
+        "read ip" => handle_read_ip_tool(params.arguments).await,
         "cat file" => handle_read_file_tool(params.arguments).await,
         "list files" => handle_list_files_tool(params.arguments).await,
         _ => {

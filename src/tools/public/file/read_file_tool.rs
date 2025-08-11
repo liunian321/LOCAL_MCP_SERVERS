@@ -12,12 +12,12 @@ struct ReadFile {
     contents: Option<String>,
 }
 
-async fn read_file_tool(file_path: String) -> String {
-    let file = File::open(file_path).await.unwrap();
+async fn read_file_tool(file_path: String) -> Result<String, std::io::Error> {
+    let file = File::open(&file_path).await?;
     let mut reader = BufReader::new(file);
     let mut contents = String::new();
-    reader.read_to_string(&mut contents).await.unwrap();
-    contents
+    reader.read_to_string(&mut contents).await?;
+    Ok(contents)
 }
 
 pub async fn handle_read_file_tool(args_json: Option<serde_json::Value>) -> ToolCallResult {
@@ -56,23 +56,41 @@ pub async fn handle_read_file_tool(args_json: Option<serde_json::Value>) -> Tool
     };
 
     let file_path = args.file_path.clone();
-    let contents = read_file_tool(file_path).await;
-
-    ToolCallResult {
-        content: vec![ToolContent {
-            content_type: "text".to_string(),
-            text: Some(contents.clone()),
-            data: None,
-            mime_type: None,
-            annotations: None,
-        }],
-        is_error: Some(false),
-        structured_content: Some(
-            serde_json::to_value(serde_json::json!({
-                "file_path": args.file_path.clone(),
-                "contents": contents
-            }))
-            .unwrap(),
-        ),
+    
+    match read_file_tool(file_path.clone()).await {
+        Ok(contents) => {
+            ToolCallResult {
+                content: vec![ToolContent {
+                    content_type: "text".to_string(),
+                    text: Some(contents.clone()),
+                    data: None,
+                    mime_type: None,
+                    annotations: None,
+                }],
+                is_error: Some(false),
+                structured_content: Some(
+                    serde_json::to_value(serde_json::json!({
+                        "file_path": file_path,
+                        "contents": contents
+                    }))
+                    .unwrap(),
+                ),
+            }
+        }
+        Err(e) => {
+            ToolCallResult {
+                content: vec![ToolContent {
+                    content_type: "text".to_string(),
+                    text: Some(format!("读取文件失败: {}", e)),
+                    data: None,
+                    mime_type: None,
+                    annotations: None,
+                }],
+                is_error: Some(true),
+                structured_content: Some(
+                    serde_json::to_value(format!("读取文件失败: {}", e)).unwrap(),
+                ),
+            }
+        }
     }
 }

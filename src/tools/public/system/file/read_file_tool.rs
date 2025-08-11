@@ -56,41 +56,35 @@ pub async fn handle_read_file_tool(args_json: Option<serde_json::Value>) -> Tool
     };
 
     let file_path = args.file_path.clone();
-    
+
     match read_file_tool(file_path.clone()).await {
-        Ok(contents) => {
-            ToolCallResult {
-                content: vec![ToolContent {
-                    content_type: "text".to_string(),
-                    text: Some(contents.clone()),
-                    data: None,
-                    mime_type: None,
-                    annotations: None,
-                }],
-                is_error: Some(false),
-                structured_content: Some(
-                    serde_json::to_value(serde_json::json!({
-                        "file_path": file_path,
-                        "contents": contents
-                    }))
-                    .unwrap(),
-                ),
-            }
-        }
-        Err(e) => {
-            ToolCallResult {
-                content: vec![ToolContent {
-                    content_type: "text".to_string(),
-                    text: Some(format!("读取文件失败: {}", e)),
-                    data: None,
-                    mime_type: None,
-                    annotations: None,
-                }],
-                is_error: Some(true),
-                structured_content: Some(
-                    serde_json::to_value(format!("读取文件失败: {}", e)).unwrap(),
-                ),
-            }
-        }
+        Ok(contents) => ToolCallResult {
+            content: vec![ToolContent {
+                content_type: "text".to_string(),
+                text: Some(contents.clone()),
+                data: None,
+                mime_type: None,
+                annotations: None,
+            }],
+            is_error: Some(false),
+            structured_content: Some(
+                serde_json::to_value(serde_json::json!({
+                    "file_path": file_path,
+                    "contents": contents
+                }))
+                .unwrap(),
+            ),
+        },
+        Err(e) => ToolCallResult {
+            content: vec![ToolContent {
+                content_type: "text".to_string(),
+                text: Some(format!("读取文件失败: {}", e)),
+                data: None,
+                mime_type: None,
+                annotations: None,
+            }],
+            is_error: Some(true),
+            structured_content: Some(serde_json::to_value(format!("读取文件失败: {}", e)).unwrap()),
+        },
     }
 }

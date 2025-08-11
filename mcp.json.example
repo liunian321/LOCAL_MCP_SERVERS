@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "local_mcp_servers": {
+    "local_mcp_server": {
       "url": "http://127.0.0.1:3000/"
     }
   }

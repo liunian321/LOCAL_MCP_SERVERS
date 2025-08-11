@@ -7,7 +7,10 @@ use axum::{
 pub fn init_bind_router(app: Router) -> Router {
     app.route("/", get(|| async { "MCP Server is running!" }))
         // MCP标准端点 - 初始化和主要通信（通用处理器）
-        .route("/", post(crate::tools::mcp_handler::handle_generic_mcp_request))
+        .route(
+            "/",
+            post(crate::tools::mcp_handler::handle_generic_mcp_request),
+        )
         // MCP标准端点 - SSE支持
         .route("/sse", get(crate::tools::sse_handler::handle_sse))
         // 工具端点（向后兼容）

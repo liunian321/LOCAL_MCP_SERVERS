@@ -29,7 +29,7 @@ pub async fn handle_sse(headers: HeaderMap) -> Response {
     // 首先发送初始化消息，然后保持连接
     let stream = stream::iter(vec![
         Ok::<Event, Infallible>(Event::default()
-            .data("{\"jsonrpc\":\"2.0\",\"id\":null,\"result\":{\"capabilities\":{\"tools\":{\"listChanged\":false}},\"protocolVersion\":\"2025-06-18\",\"serverInfo\":{\"name\":\"local_mcp_servers\",\"version\":\"0.1.0\"}}}")
+            .data("{\"jsonrpc\":\"2.0\",\"id\":null,\"result\":{\"capabilities\":{\"tools\":{\"listChanged\":false}},\"protocolVersion\":\"2025-06-18\",\"serverInfo\":{\"name\":\"local_mcp_server\",\"version\":\"0.1.0\"}}}")
             .event("initialize"))
     ])
     .chain(

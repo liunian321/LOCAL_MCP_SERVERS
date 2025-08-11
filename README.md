@@ -1,4 +1,4 @@
-# Local MCP Servers
+# Local MCP Server
 
 [![Rust](https://img.shields.io/badge/Rust-1.70+-orange.svg)](https://www.rust-lang.org/)
 [![License](https://img.shields.io/badge/License-Custom-blue.svg)](LICENSE)
@@ -46,7 +46,7 @@ listen_port: 3000
 ```json
 {
   "mcpServers": {
-    "local_mcp_servers": {
+    "local_mcp_server": {
       "url": "http://127.0.0.1:3000/"
     }
   }

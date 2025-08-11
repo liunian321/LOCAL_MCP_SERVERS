@@ -74,7 +74,7 @@ async fn handle_mcp_request_internal(
                     },
                     "protocolVersion": "2025-06-18",
                     "serverInfo": {
-                        "name": "local_mcp_servers",
+                        "name": "local_mcp_server",
                         "version": "0.1.0"
                     }
                 }),

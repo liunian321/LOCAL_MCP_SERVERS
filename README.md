@@ -63,8 +63,7 @@ listen_port: 3000
 
 ### 网络工具
 - Ping 测试
-- IP 查询
-- 网络诊断
+- 当前 IP 查询和域名 IP 查询
 
 ## 开发
 
@@ -76,7 +75,6 @@ src/
 ├── router/              # 路由处理
 ├── tools/               # 工具实现
 │   ├── public/          # 公共工具
-│   │   ├── file/        # 文件操作
 │   │   ├── network/     # 网络工具
 │   │   └── system/      # 系统工具
 │   └── handler.rs       # 工具处理器

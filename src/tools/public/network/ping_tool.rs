@@ -9,7 +9,6 @@ struct PingArgs {
     target: String,
 }
 
-/// Ping 工具的结果结构体
 #[derive(Debug, Serialize)]
 struct PingResult {
     target: String,
@@ -19,7 +18,6 @@ struct PingResult {
     timeout: bool,
 }
 
-/// Ping 状态枚举
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 enum PingStatus {
@@ -30,7 +28,6 @@ enum PingStatus {
     MissingArguments,
 }
 
-/// 错误结果结构体
 #[derive(Debug, Serialize)]
 struct ErrorResult {
     error: String,
@@ -41,7 +38,6 @@ struct ErrorResult {
 
 /// 解析目标地址，区分网址和 IP:端口
 fn parse_target(target: &str) -> Result<String, String> {
-    // 检查空字符串
     if target.trim().is_empty() {
         return Err("目标地址不能为空".to_string());
     }
@@ -132,7 +128,6 @@ fn ping_tool(target: &str) -> ToolCallResult {
 
     match connection_result {
         Ok(Ok(_stream)) => {
-            // 连接成功
             let result_text = format!("连接成功 - 目标: {} 延迟: {:?}", parsed_target, duration);
 
             let ping_result = PingResult {
@@ -156,7 +151,6 @@ fn ping_tool(target: &str) -> ToolCallResult {
             }
         }
         Ok(Err(_)) => {
-            // 连接失败
             let result_text = format!(
                 "连接失败 - 目标: {} 尝试时间: {:?}",
                 parsed_target, duration
@@ -183,7 +177,6 @@ fn ping_tool(target: &str) -> ToolCallResult {
             }
         }
         Err(_) => {
-            // 超时或其他错误
             let result_text = format!("连接超时 - 目标: {} 超时时间: {:?}", parsed_target, timeout);
 
             let ping_result = PingResult {

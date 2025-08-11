@@ -1,5 +1,11 @@
 use crate::tools::{
-    public::{network::ping_tool::handle_ping_tool, system_tool::handle_get_system_type, time_tool::handle_get_current_time}, tool_dto::*,
+    public::{
+        file::{list_files_tool::handle_list_files_tool, read_file_tool::handle_read_file_tool},
+        network::ping_tool::handle_ping_tool,
+        system_tool::handle_get_system_type,
+        time_tool::handle_get_current_time,
+    },
+    tool_dto::*,
 };
 
 /// 内部工具列表处理函数
@@ -43,7 +49,41 @@ pub async fn handle_tools_list_internal(
                         "description": "要ping的地址,支持URL,IP:端口,IP地址,域名"
                     }
                 })),
-                required: None,
+                required: Some(vec!["target".to_string()]),
+            },
+            output_schema: None,
+            annotations: None,
+        },
+        Tool {
+            name: "cat file".to_string(),
+            title: Some("读取文件".to_string()),
+            description: "读取文件内容".to_string(),
+            input_schema: ToolInputSchema {
+                schema_type: "object".to_string(),
+                properties: Some(serde_json::json!({
+                    "file_path": {
+                        "type": "string",
+                        "description": "要读取的文件路径"
+                    }
+                })),
+                required: Some(vec!["file_path".to_string()]),
+            },
+            output_schema: None,
+            annotations: None,
+        },
+        Tool {
+            name: "list files".to_string(),
+            title: Some("列出文件".to_string()),
+            description: "列出文件".to_string(),
+            input_schema: ToolInputSchema {
+                schema_type: "object".to_string(),
+                properties: Some(serde_json::json!({
+                    "dir_path": {
+                        "type": "string",
+                        "description": "要列出的文件夹路径"
+                    }
+                })),
+                required: Some(vec!["dir_path".to_string()]),
             },
             output_schema: None,
             annotations: None,
@@ -75,6 +115,8 @@ pub async fn handle_tool_call_internal(
         "get_system_type" => handle_get_system_type(params.arguments),
         "get_current_time" => handle_get_current_time(params.arguments),
         "ping" => handle_ping_tool(params.arguments),
+        "cat file" => handle_read_file_tool(params.arguments).await,
+        "list files" => handle_list_files_tool(params.arguments).await,
         _ => {
             return Err(JsonRpcError {
                 jsonrpc: "2.0".to_string(),

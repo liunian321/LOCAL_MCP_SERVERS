@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Custom-blue.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-2025--06--18-green.svg)](https://modelcontextprotocol.io/)
 
-一个兼容 Model Context Protocol (MCP) 2025-06-18 标准的 Rust 服务器，支持 LM Studio 等 MCP 客户端。
+这是一个兼容 Model Context Protocol (MCP) 2025-06-18 标准，基于 Rust 和 Axum 框架构建的轻量级高并发 MCP 服务器, 支持 LM Studio 等 MCP 客户端。
 
 ## 快速开始
 

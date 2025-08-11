@@ -78,7 +78,6 @@ src/
 │   │   ├── network/     # 网络工具
 │   │   └── system/      # 系统工具
 │   └── handler.rs       # 工具处理器
-└── transport/           # 传输层
 ```
 
 ### 常用命令

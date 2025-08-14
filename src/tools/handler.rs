@@ -4,9 +4,7 @@ use crate::tools::{
         system::{
             file::{
                 list_files_tool::handle_list_files_tool, read_file_tool::handle_read_file_tool,
-            },
-            system_tool::handle_get_system_type,
-            time_tool::handle_get_current_time,
+            }, random_string_tool::handle_random_string_tool, system_tool::handle_get_system_type, time_tool::handle_get_current_time
         },
     },
     tool_dto::*,
@@ -108,6 +106,27 @@ pub async fn handle_tools_list_internal(
             output_schema: None,
             annotations: None,
         },
+        Tool {
+            name: "random string".to_string(),
+            title: Some("随机字符串".to_string()),
+            description: "生成随机字符串".to_string(),
+            input_schema: ToolInputSchema {
+                schema_type: "object".to_string(),
+                properties: Some(serde_json::json!({
+                    "length": {
+                        "type": "number",
+                        "description": "随机字符串的长度,默认长度为8位的大小写字母+数字"
+                    },
+                    "include_special": {
+                        "type": "boolean",
+                        "description": "是否包含特殊字符,默认不包含"
+                    }
+                })),
+                required: None,
+            },
+            output_schema: None,
+            annotations: None,
+        },
     ];
 
     let result = ToolsListResult {
@@ -138,6 +157,7 @@ pub async fn handle_tool_call_internal(
         "read ip" => handle_read_ip_tool(params.arguments).await,
         "cat file" => handle_read_file_tool(params.arguments).await,
         "list files" => handle_list_files_tool(params.arguments).await,
+        "random string" => handle_random_string_tool(params.arguments),
         _ => {
             return Err(JsonRpcError {
                 jsonrpc: "2.0".to_string(),

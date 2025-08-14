@@ -83,13 +83,22 @@ src/
 │   └── handler.rs       # 工具处理器
 ```
 
-### 常用命令
+### 使用说明
+1. 执行命令,下载rust 和 cargo
+
 ```bash
-cargo check      # 检查代码
-cargo test       # 运行测试
-cargo build      # 构建项目
-cargo fmt        # 代码格式化
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
+2. 复制 config_example.yaml 为 config.yaml
+
+3. 在项目目录执行
+```bash
+cargo run
+```
+
+4. 在LM Studio中配置MCP服务器, 配置文件为mcp.json
+
+5. 在LM Studio中点击按钮启用 mcp 服务器.
 
 ## 许可证
 
